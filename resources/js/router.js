@@ -2,6 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 import LoginComponent from './components/LoginComponent';
 import AdminComponent from './components/AdminComponent';
+import RoleComponent from './components/RoleComponent';
 
 Vue.use(VueRouter)
 
@@ -24,8 +25,17 @@ const routes=[
 			next();
 		} else 
 		next('/login');
-	}
-}
+	},
+	children:[
+		{
+			path:'roles',
+			component:RoleComponent,
+			name:'Role'
+		}
+	]
+
+},
+
 ]
 
 export default new VueRouter({routes})

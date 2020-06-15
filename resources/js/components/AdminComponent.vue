@@ -12,6 +12,7 @@
           v-for="item in items"
           :key="item.text"
           link
+          :to="item.action"
         >
           <v-list-item-action>
             <v-icon>{{ item.icon }}</v-icon>
@@ -67,7 +68,7 @@
         class="mx-4"
         large
       >
-        mdi-youtube
+        mdi-office-building
       </v-icon>
       <v-toolbar-title class="mr-12 align-center">
         <span class="title">Admin Dashboard</span>
@@ -89,12 +90,14 @@
     </v-app-bar>
 
     <v-main>
-      <v-container class="fill-height">
+      <v-container class="">
         <v-row
           justify="center"
           align="center"
         >
           <v-col>
+            <router-view></router-view>
+
                     <v-snackbar
               v-model="snackbar"
             >
@@ -130,11 +133,11 @@
         snackbar:false,
         text:'',
 	      items: [
-	        { icon: 'mdi-account', text: 'User' },
-	        { icon: 'mdi-youtube-subscription', text: 'Subscriptions' },
-	        { icon: 'mdi-history', text: 'History' },
-	        { icon: 'mdi-playlist-play', text: 'Playlists' },
-	        { icon: 'mdi-clock', text: 'Role' },
+	        { icon: 'mdi-account-circle', text: 'User' , action: "/admin" },
+	        { icon: 'mdi-post-outline', text: 'Post', action: "posts" },
+	        { icon: 'mdi-circle-edit-outline', text: 'Pages', action: "pages" },
+	        { icon: 'mdi-briefcase-edit-outline', text: 'catagories', action: "catagories" },
+	        { icon: 'mdi-account-tie', text: 'Roles' , action: "/admin/roles"},
 	      ],
 	      items2: [
 	        { picture: 28, text: 'Joseph' },
