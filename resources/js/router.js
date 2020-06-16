@@ -20,12 +20,7 @@ const routes=[
 	path:'/admin',
 	component:AdminComponent,
 	name:'Admin',
-	beforeEnter:(to, from, next)=>{
-		if(localStorage.getItem('token')){
-			next();
-		} else 
-		next('/login');
-	},
+	
 	children:[
 		{
 			path:'roles',
@@ -38,4 +33,12 @@ const routes=[
 
 ]
 
-export default new VueRouter({routes})
+const router = new VueRouter({routes})
+
+router.beforeEach((to, from, next) => {
+	const token = localStorage.getItem('token')||null
+  	window.axios.defaults.headers['Authorization'] = "Bearer " + token;
+  	next();
+})
+
+export default router

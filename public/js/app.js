@@ -2351,17 +2351,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2371,7 +2360,7 @@ __webpack_require__.r(__webpack_exports__);
         text: 'Id',
         align: 'start',
         sortable: false,
-        value: 'name'
+        value: 'id'
       }, {
         text: 'Name',
         value: 'name'
@@ -2389,23 +2378,22 @@ __webpack_require__.r(__webpack_exports__);
       roles: [],
       editedIndex: -1,
       editedItem: {
+        id: '',
         name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0
+        created_at: '',
+        updated_at: ''
       },
       defaultItem: {
+        id: '',
         name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0
+        created_at: '',
+        updated_at: ''
       }
     };
   },
   computed: {
     formTitle: function formTitle() {
-      return this.editedIndex === -1 ? 'New Item' : 'Edit Item';
+      return this.editedIndex === -1 ? 'New Role' : 'Edit Item';
     }
   },
   watch: {
@@ -2440,17 +2428,21 @@ __webpack_require__.r(__webpack_exports__);
       axios.get('/api/roles', {}).then(function (res) {
         return _this.roles = res.data.roles;
       })["catch"](function (err) {
-        console.log(err);
+        if (err.response.status == 401) {
+          localStorage.removeItem('token');
+
+          _this.$router.push('/login');
+        }
       });
     },
     editItem: function editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
+      this.editedIndex = this.roles.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
     deleteItem: function deleteItem(item) {
-      var index = this.desserts.indexOf(item);
-      confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1);
+      var index = this.roles.indexOf(item);
+      confirm('Are you sure you want to delete this item?') && this.roles.splice(index, 1);
     },
     close: function close() {
       var _this2 = this;
@@ -2462,10 +2454,18 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     save: function save() {
+      var _this3 = this;
+
       if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem);
+        Object.assign(this.roles[this.editedIndex], this.editedItem);
       } else {
-        this.desserts.push(this.editedItem);
+        axios.post('/api/roles', {
+          'name': this.editedItem.name
+        }).then(function (res) {
+          return _this3.roles.push(res.data.role);
+        })["catch"](function (err) {
+          return console.dir(err, response);
+        }); //
       }
 
       this.close();
@@ -20601,7 +20601,7 @@ var render = function() {
               "v-toolbar",
               { attrs: { flat: "", color: "white" } },
               [
-                _c("v-toolbar-title", [_vm._v("My CRUD")]),
+                _c("v-toolbar-title", [_vm._v("Roles Detail")]),
                 _vm._v(" "),
                 _c("v-divider", {
                   staticClass: "mx-4",
@@ -20635,7 +20635,7 @@ var render = function() {
                                 ),
                                 on
                               ),
-                              [_vm._v("New Item")]
+                              [_vm._v("Add Role")]
                             )
                           ]
                         }
@@ -20676,7 +20676,7 @@ var render = function() {
                                       },
                                       [
                                         _c("v-text-field", {
-                                          attrs: { label: "id" },
+                                          attrs: { label: "Role Name" },
                                           model: {
                                             value: _vm.editedItem.name,
                                             callback: function($$v) {
@@ -20687,102 +20687,6 @@ var render = function() {
                                               )
                                             },
                                             expression: "editedItem.name"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    ),
-                                    _vm._v(" "),
-                                    _c(
-                                      "v-col",
-                                      {
-                                        attrs: { cols: "12", sm: "6", md: "4" }
-                                      },
-                                      [
-                                        _c("v-text-field", {
-                                          attrs: { label: "name" },
-                                          model: {
-                                            value: _vm.editedItem.calories,
-                                            callback: function($$v) {
-                                              _vm.$set(
-                                                _vm.editedItem,
-                                                "calories",
-                                                $$v
-                                              )
-                                            },
-                                            expression: "editedItem.calories"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    ),
-                                    _vm._v(" "),
-                                    _c(
-                                      "v-col",
-                                      {
-                                        attrs: { cols: "12", sm: "6", md: "4" }
-                                      },
-                                      [
-                                        _c("v-text-field", {
-                                          attrs: { label: "created_at" },
-                                          model: {
-                                            value: _vm.editedItem.fat,
-                                            callback: function($$v) {
-                                              _vm.$set(
-                                                _vm.editedItem,
-                                                "fat",
-                                                $$v
-                                              )
-                                            },
-                                            expression: "editedItem.fat"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    ),
-                                    _vm._v(" "),
-                                    _c(
-                                      "v-col",
-                                      {
-                                        attrs: { cols: "12", sm: "6", md: "4" }
-                                      },
-                                      [
-                                        _c("v-text-field", {
-                                          attrs: { label: "updated_at" },
-                                          model: {
-                                            value: _vm.editedItem.carbs,
-                                            callback: function($$v) {
-                                              _vm.$set(
-                                                _vm.editedItem,
-                                                "carbs",
-                                                $$v
-                                              )
-                                            },
-                                            expression: "editedItem.carbs"
-                                          }
-                                        })
-                                      ],
-                                      1
-                                    ),
-                                    _vm._v(" "),
-                                    _c(
-                                      "v-col",
-                                      {
-                                        attrs: { cols: "12", sm: "6", md: "4" }
-                                      },
-                                      [
-                                        _c("v-text-field", {
-                                          attrs: { label: "Protein (g)" },
-                                          model: {
-                                            value: _vm.editedItem.protein,
-                                            callback: function($$v) {
-                                              _vm.$set(
-                                                _vm.editedItem,
-                                                "protein",
-                                                $$v
-                                              )
-                                            },
-                                            expression: "editedItem.protein"
                                           }
                                         })
                                       ],
@@ -80167,20 +80071,21 @@ var routes = [{
   path: '/admin',
   component: _components_AdminComponent__WEBPACK_IMPORTED_MODULE_3__["default"],
   name: 'Admin',
-  beforeEnter: function beforeEnter(to, from, next) {
-    if (localStorage.getItem('token')) {
-      next();
-    } else next('/login');
-  },
   children: [{
     path: 'roles',
     component: _components_RoleComponent__WEBPACK_IMPORTED_MODULE_4__["default"],
     name: 'Role'
   }]
 }];
-/* harmony default export */ __webpack_exports__["default"] = (new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
+var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   routes: routes
-}));
+});
+router.beforeEach(function (to, from, next) {
+  var token = localStorage.getItem('token') || null;
+  window.axios.defaults.headers['Authorization'] = "Bearer " + token;
+  next();
+});
+/* harmony default export */ __webpack_exports__["default"] = (router);
 
 /***/ }),
 

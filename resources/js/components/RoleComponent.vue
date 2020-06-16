@@ -9,7 +9,7 @@
 
 		<template v-slot:top>
 		  <v-toolbar flat color="white">
-		    <v-toolbar-title>My CRUD</v-toolbar-title>
+		    <v-toolbar-title>Roles Detail</v-toolbar-title>
 		    <v-divider
 		      class="mx-4"
 		      inset
@@ -24,7 +24,7 @@
 		          class="mb-2"
 		          v-bind="attrs"
 		          v-on="on"
-		        >New Item</v-btn>
+		        >Add Role</v-btn>
 		      </template>
 		      <v-card>
 		        <v-card-title>
@@ -35,20 +35,9 @@
 		          <v-container>
 		            <v-row>
 		              <v-col cols="12" sm="6" md="4">
-		                <v-text-field v-model="editedItem.name" label="id"></v-text-field>
+		                <v-text-field v-model="editedItem.name" label="Role Name"></v-text-field>
 		              </v-col>
-		              <v-col cols="12" sm="6" md="4">
-		                <v-text-field v-model="editedItem.calories" label="name"></v-text-field>
-		              </v-col>
-		              <v-col cols="12" sm="6" md="4">
-		                <v-text-field v-model="editedItem.fat" label="created_at"></v-text-field>
-		              </v-col>
-		              <v-col cols="12" sm="6" md="4">
-		                <v-text-field v-model="editedItem.carbs" label="updated_at"></v-text-field>
-		              </v-col>
-		              <v-col cols="12" sm="6" md="4">
-		                <v-text-field v-model="editedItem.protein" label="Protein (g)"></v-text-field>
-		              </v-col>
+		              
 		            </v-row>
 		          </v-container>
 		        </v-card-text>
@@ -94,7 +83,7 @@
           text: 'Id',
           align: 'start',
           sortable: false,
-          value: 'name',
+          value: 'id',
         },
         { text: 'Name', value: 'name' },
         { text: 'Created At', value: 'created_at' },
@@ -105,24 +94,24 @@
       roles: [],
       editedIndex: -1,
       editedItem: {
+        id:'',
         name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
+        created_at:'',
+        updated_at:'',
         
       },
       defaultItem: {
+        id:'',
         name: '',
-        calories: 0,
-        fat: 0,
-        carbs: 0,
-        protein: 0,
+        created_at:'',
+        updated_at:'',
+        
       },
     }),
 
     computed: {
       formTitle () {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        return this.editedIndex === -1 ? 'New Role' : 'Edit Item'
       },
     },
 
@@ -159,21 +148,24 @@
       	    axios.get('/api/roles', {})
 	    		  .then(res => this.roles=res.data.roles)
 	    		  .catch(err => {
-	    		  console.log(err)
+	    		  if(err.response.status==401){
+	    		  	localStorage.removeItem('token');
+	    		  	this.$router.push('/login');
+	    		  }
 	    		    
 	    		  });
 
       },
 
       editItem (item) {
-        this.editedIndex = this.desserts.indexOf(item)
+        this.editedIndex = this.roles.indexOf(item)
         this.editedItem = Object.assign({}, item)
         this.dialog = true
       },
 
       deleteItem (item) {
-        const index = this.desserts.indexOf(item)
-        confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
+        const index = this.roles.indexOf(item)
+        confirm('Are you sure you want to delete this item?') && this.roles.splice(index, 1)
       },
 
       close () {
@@ -186,9 +178,12 @@
 
       save () {
         if (this.editedIndex > -1) {
-          Object.assign(this.desserts[this.editedIndex], this.editedItem)
+          Object.assign(this.roles[this.editedIndex], this.editedItem)
         } else {
-          this.desserts.push(this.editedItem)
+          axios.post('/api/roles',{'name':this.editedItem.name})
+          .then(res=> this.roles.push(res.data.role))
+          .catch(err=>console.dir(err,response))
+          //
         }
         this.close()
       },
