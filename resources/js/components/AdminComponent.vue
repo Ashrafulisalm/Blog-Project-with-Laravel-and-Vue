@@ -44,9 +44,11 @@
           link
         >
           <v-list-item-action>
-            <v-icon color="grey darken-1">mdi-plus-circle-outline</v-icon>
+            <v-switch
+                 v-model="theme"
+               ></v-switch>
           </v-list-item-action>
-          <v-list-item-title class="grey--text text--darken-1">Browse Channels</v-list-item-title>
+          <v-list-item-title class="grey--text text--darken-1">Dark Theme</v-list-item-title>
         </v-list-item>
         <v-list-item link @click="logout">
           <v-list-item-action>
@@ -131,6 +133,7 @@
 	    data: () => ({
 	      drawer: null,
         snackbar:false,
+        theme: false,
         text:'',
 	      items: [
 	        { icon: 'mdi-account-circle', text: 'User' , action: "/admin" },
@@ -152,6 +155,11 @@
         this.text='Logged In';
         this.sanckbar = true
 	    },
+      watch:{
+        theme:function(old,newval){
+          this.$vuetify.theme.dark = old
+        }
+      },
 
       methods:{
         logout:function(){
