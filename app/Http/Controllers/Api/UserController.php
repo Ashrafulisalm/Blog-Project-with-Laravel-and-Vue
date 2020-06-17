@@ -36,4 +36,8 @@ class UserController extends Controller
     	return response()->json(['status' => 'Email or Password is Wrong'], 403); */
 
     }
+
+    public function varify(Request $request){
+        return $request->user()->only('name','email');
+    }
 }

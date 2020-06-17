@@ -6,6 +6,7 @@
     class="elevation-1" 
     :loading="loading" 
     loading-text="Loading... Please wait">
+    
 
 		<template v-slot:top>
 		  <v-toolbar flat color="white">
@@ -51,7 +52,7 @@
 		    </v-dialog>
 		  </v-toolbar>
 		</template>
-		
+		  
 		<template v-slot:item.actions="{ item }">
 		  <v-icon
 		    small
@@ -71,6 +72,7 @@
 		  <v-btn color="primary" @click="initialize">Reset</v-btn>
 		</template>
 	</v-data-table>
+ 
 </template>
 
 <script>
@@ -78,6 +80,7 @@
     data: () => ({
       dialog: false,
       loading : false,
+      snackbar: false,
       headers: [
         {
           text: 'Id',
@@ -111,7 +114,7 @@
 
     computed: {
       formTitle () {
-        return this.editedIndex === -1 ? 'New Role' : 'Edit Item'
+        return this.editedIndex === -1 ? 'New Role' : 'Edit Role'
       },
     },
 
@@ -165,7 +168,14 @@
 
       deleteItem (item) {
         const index = this.roles.indexOf(item)
-        confirm('Are you sure you want to delete this item?') && this.roles.splice(index, 1)
+        let decide=confirm('Are you sure you want to delete this item?');
+        if(decide){ 
+          axios.delete('/api/roles/'+item.id)
+          .then(res=> {
+            this.roles.splice(index, 1)
+            this.snackbar=true;
+          }).catch(err=>console.log(err.response))
+        }
       },
 
       close () {
@@ -178,12 +188,19 @@
 
       save () {
         if (this.editedIndex > -1) {
-          Object.assign(this.roles[this.editedIndex], this.editedItem)
+          //Object.assign(this.desserts[this.editedIndex], this.editedItem)
+
+
+          axios.put('/api/roles/'+ this.editedItem.id , {'name':this.editedItem.name})
+          .then(res => Object.assign(this.roles[this.editedIndex], res.data.role))
+          .catch(err=> console.log(err.response))
+          console.log(this.editedItem);
+          
         } else {
           axios.post('/api/roles',{'name':this.editedItem.name})
           .then(res=> this.roles.push(res.data.role))
-          .catch(err=>console.dir(err,response))
-          //
+          .catch(err=>console.dir(err.response))
+
         }
         this.close()
       },

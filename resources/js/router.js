@@ -27,7 +27,12 @@ const routes=[
 			component:RoleComponent,
 			name:'Role'
 		}
-	]
+	],
+	beforeEnter : (to,from,next)=>{
+		axios.get('api/varify')
+		.then(res=>next())
+		.catch(err=>next('/login'))
+	}
 
 },
 

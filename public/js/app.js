@@ -2351,11 +2351,14 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       dialog: false,
       loading: false,
+      snackbar: false,
       headers: [{
         text: 'Id',
         align: 'start',
@@ -2393,7 +2396,7 @@ __webpack_require__.r(__webpack_exports__);
   },
   computed: {
     formTitle: function formTitle() {
-      return this.editedIndex === -1 ? 'New Role' : 'Edit Item';
+      return this.editedIndex === -1 ? 'New Role' : 'Edit Role';
     }
   },
   watch: {
@@ -2441,31 +2444,51 @@ __webpack_require__.r(__webpack_exports__);
       this.dialog = true;
     },
     deleteItem: function deleteItem(item) {
+      var _this2 = this;
+
       var index = this.roles.indexOf(item);
-      confirm('Are you sure you want to delete this item?') && this.roles.splice(index, 1);
+      var decide = confirm('Are you sure you want to delete this item?');
+
+      if (decide) {
+        axios["delete"]('/api/roles/' + item.id).then(function (res) {
+          _this2.roles.splice(index, 1);
+
+          _this2.snackbar = true;
+        })["catch"](function (err) {
+          return console.log(err.response);
+        });
+      }
     },
     close: function close() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.dialog = false;
       this.$nextTick(function () {
-        _this2.editedItem = Object.assign({}, _this2.defaultItem);
-        _this2.editedIndex = -1;
+        _this3.editedItem = Object.assign({}, _this3.defaultItem);
+        _this3.editedIndex = -1;
       });
     },
     save: function save() {
-      var _this3 = this;
+      var _this4 = this;
 
       if (this.editedIndex > -1) {
-        Object.assign(this.roles[this.editedIndex], this.editedItem);
+        //Object.assign(this.desserts[this.editedIndex], this.editedItem)
+        axios.put('/api/roles/' + this.editedItem.id, {
+          'name': this.editedItem.name
+        }).then(function (res) {
+          return Object.assign(_this4.roles[_this4.editedIndex], res.data.role);
+        })["catch"](function (err) {
+          return console.log(err.response);
+        });
+        console.log(this.editedItem);
       } else {
         axios.post('/api/roles', {
           'name': this.editedItem.name
         }).then(function (res) {
-          return _this3.roles.push(res.data.role);
+          return _this4.roles.push(res.data.role);
         })["catch"](function (err) {
-          return console.dir(err, response);
-        }); //
+          return console.dir(err.response);
+        });
       }
 
       this.close();
@@ -80075,7 +80098,14 @@ var routes = [{
     path: 'roles',
     component: _components_RoleComponent__WEBPACK_IMPORTED_MODULE_4__["default"],
     name: 'Role'
-  }]
+  }],
+  beforeEnter: function beforeEnter(to, from, next) {
+    axios.get('api/varify').then(function (res) {
+      return next();
+    })["catch"](function (err) {
+      return next('/login');
+    });
+  }
 }];
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   routes: routes
