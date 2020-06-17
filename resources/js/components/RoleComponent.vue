@@ -61,6 +61,13 @@
   		      </v-card>
   		    </v-dialog>
   		  </v-toolbar>
+        <v-text-field
+        
+          append-icon="mdi-magnify"
+          label="Search"
+          @input="searchIt"
+          class="mx-12"                
+        ></v-text-field>
   		</template>
   		  
   		<template v-slot:item.actions="{ item }">
@@ -188,6 +195,20 @@
                 this.$router.push('/login');
               }
             })
+      },
+
+      searchIt(e){
+        if(e.length>3){
+          axios.get(`/api/roles/${e}`)
+            .then(res=> this.roles.data = res.data.role)
+            .catch(err=>console.dir(err.response))
+        } 
+        if(e.length<=0){
+          axios.get('/api/roles')
+            .then(res=>this.roles.data=res.data.role)
+            .catch(err=>console.dir(err.response))
+
+        }
       },
 
       editItem (item) {

@@ -2387,6 +2387,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2481,39 +2488,58 @@ __webpack_require__.r(__webpack_exports__);
         }
       });
     },
+    searchIt: function searchIt(e) {
+      var _this3 = this;
+
+      if (e.length > 3) {
+        axios.get("/api/roles/".concat(e)).then(function (res) {
+          return _this3.roles.data = res.data.role;
+        })["catch"](function (err) {
+          return console.dir(err.response);
+        });
+      }
+
+      if (e.length <= 0) {
+        axios.get('/api/roles').then(function (res) {
+          return _this3.roles.data = res.data.role;
+        })["catch"](function (err) {
+          return console.dir(err.response);
+        });
+      }
+    },
     editItem: function editItem(item) {
       this.editedIndex = this.roles.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
     deleteItem: function deleteItem(item) {
-      var _this3 = this;
+      var _this4 = this;
 
       var index = this.roles.data.indexOf(item);
       var decide = confirm('Are you sure you want to delete this item?');
 
       if (decide) {
         axios["delete"]('/api/roles/' + item.id).then(function (res) {
-          _this3.roles.data.splice(index, 1);
+          _this4.roles.data.splice(index, 1);
 
-          _this3.texts = "Role Deleted Successfully";
-          _this3.sweetalert = true;
+          _this4.texts = "Role Deleted Successfully";
+          _this4.sweetalert = true;
         })["catch"](function (err) {
           return console.log(err.response);
         });
       }
     },
     close: function close() {
-      var _this4 = this;
+      var _this5 = this;
 
       this.dialog = false;
       this.$nextTick(function () {
-        _this4.editedItem = Object.assign({}, _this4.defaultItem);
-        _this4.editedIndex = -1;
+        _this5.editedItem = Object.assign({}, _this5.defaultItem);
+        _this5.editedIndex = -1;
       });
     },
     save: function save() {
-      var _this5 = this;
+      var _this6 = this;
 
       if (this.editedIndex > -1) {
         //Object.assign(this.desserts[this.editedIndex], this.editedItem)
@@ -2521,9 +2547,9 @@ __webpack_require__.r(__webpack_exports__);
         axios.put('/api/roles/' + this.editedItem.id, {
           'name': this.editedItem.name
         }).then(function (res) {
-          Object.assign(_this5.roles.data[indexs], res.data.role);
-          _this5.texts = "Role Updated Successfully";
-          _this5.sweetalert = true;
+          Object.assign(_this6.roles.data[indexs], res.data.role);
+          _this6.texts = "Role Updated Successfully";
+          _this6.sweetalert = true;
         })["catch"](function (err) {
           return console.log(err.response);
         });
@@ -2532,10 +2558,10 @@ __webpack_require__.r(__webpack_exports__);
         axios.post('/api/roles', {
           'name': this.editedItem.name
         }).then(function (res) {
-          _this5.roles.data.push(res.data.role);
+          _this6.roles.data.push(res.data.role);
 
-          _this5.texts = "Role Created Successfully";
-          _this5.sweetalert = true;
+          _this6.texts = "Role Created Successfully";
+          _this6.sweetalert = true;
         })["catch"](function (err) {
           return console.dir(err.response);
         });
@@ -20831,7 +20857,13 @@ var render = function() {
                     )
                   ],
                   1
-                )
+                ),
+                _vm._v(" "),
+                _c("v-text-field", {
+                  staticClass: "mx-12",
+                  attrs: { "append-icon": "mdi-magnify", label: "Search" },
+                  on: { input: _vm.searchIt }
+                })
               ]
             },
             proxy: true

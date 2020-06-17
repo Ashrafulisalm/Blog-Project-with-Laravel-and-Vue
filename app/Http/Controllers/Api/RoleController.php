@@ -51,7 +51,8 @@ class RoleController extends Controller
      */
     public function show($id)
     {
-        //
+        $role=Role::where('name','LIKE',"%$id%")->get();
+        return response()->json(['role' =>$role],200);
     }
 
     /**
