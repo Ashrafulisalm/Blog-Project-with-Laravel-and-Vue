@@ -2257,13 +2257,18 @@ __webpack_require__.r(__webpack_exports__);
         email: this.email,
         password: this.password
       }).then(function (response) {
-        localStorage.setItem('token', response.data.token);
+        if (response.data.isAdmin) {
+          localStorage.setItem('token', response.data.token);
 
-        _this.$router.push('/admin').then(function (res) {
-          return console.dir('Logged In Successfully');
-        })["catch"](function (err) {
-          return console.dir(err);
-        });
+          _this.$router.push('/admin').then(function (res) {
+            return console.dir('Logged In Successfully');
+          })["catch"](function (err) {
+            return console.dir(err);
+          });
+        } else {
+          _this.texts = "Login access only for admin";
+          _this.snackbar = true;
+        }
       })["catch"](function (error) {
         //console.dir(error);
         _this.texts = error.response.data.status;

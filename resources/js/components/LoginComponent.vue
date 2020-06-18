@@ -119,9 +119,13 @@
 	    		    password:this.password
 	    		  })
 	    		  .then((response) => {
-	    		  
+              if(response.data.isAdmin){
 	    		    localStorage.setItem('token',response.data.token);
-	    		    this.$router.push('/admin').then(res=> console.dir('Logged In Successfully')).catch(err=>console.dir(err))
+	    		    this.$router.push('/admin').then(res=> console.dir('Logged In Successfully')).catch(err=>console.dir(err))} else {
+                this.texts="Login access only for admin";
+                this.snackbar=true
+
+              }
 	    		  })
 	    		  .catch((error) => {
 	    		  //console.dir(error);
