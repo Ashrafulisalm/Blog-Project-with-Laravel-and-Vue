@@ -10,6 +10,9 @@
         'show-current-page':true,
         'show-first-last-page':true
       }"
+      
+      show-select
+      @input="selectData"
       :server-items-length="roles.total"
       @pagination="paginate"
       item-key="name" 
@@ -29,6 +32,13 @@
   		    <v-spacer></v-spacer>
   		    <v-dialog v-model="dialog" max-width="500px">
   		      <template v-slot:activator="{ on, attrs }">
+              <v-btn
+                color="error"
+                dark
+                class="mb-2"
+                v-bind="attrs"
+                @click="deleteMultiple"
+              >Delete Selected</v-btn>
   		        <v-btn
   		          color="primary"
   		          dark
@@ -115,6 +125,7 @@
       loading : false,
       sweetalert: false,
       texts:'',
+      selected:[],
       headers: [
         {
           text: 'Id',
@@ -208,6 +219,32 @@
             .then(res=>this.roles.data=res.data.role)
             .catch(err=>console.dir(err.response))
 
+        }
+      },
+
+      selectData(e){
+        this.selected=[];
+        if(e.length>0){
+          this.selected=e.map(val=>val.id)
+        }
+      },
+
+      deleteMultiple(){
+          let decide=confirm('Are you sure you want to delete this item?');
+          if(decide){ 
+            axios.post('/api/roles/delete',{'role_id':this.selected})
+            .then(res=> {              
+              this.selected.map(val=>{
+              const index = this.roles.data.indexOf(val)
+              this.roles.data.splice(index, 1)
+              this.texts="Role Deleted Successfully"
+              this.sweetalert=true
+              })
+          }).catch(err=>{
+            this.texts="Role can't be deleted"
+              this.sweetalert=true
+          }
+          )
         }
       },
 

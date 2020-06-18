@@ -92,4 +92,10 @@ class RoleController extends Controller
         $role=Role::find($id)->delete();
         return response()->json(['role' =>$role],200);
     }
+
+
+    public function deleteMultiple(Request $request){
+        $role=Role::whereIn('id',$request->role_id)->delete();
+        return response()->json(['message'=>'Deleted'],200);
+    }
 }

@@ -2394,6 +2394,16 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2401,6 +2411,7 @@ __webpack_require__.r(__webpack_exports__);
       loading: false,
       sweetalert: false,
       texts: '',
+      selected: [],
       headers: [{
         text: 'Id',
         align: 'start',
@@ -2507,39 +2518,71 @@ __webpack_require__.r(__webpack_exports__);
         });
       }
     },
+    selectData: function selectData(e) {
+      this.selected = [];
+
+      if (e.length > 0) {
+        this.selected = e.map(function (val) {
+          return val.id;
+        });
+      }
+    },
+    deleteMultiple: function deleteMultiple() {
+      var _this4 = this;
+
+      var decide = confirm('Are you sure you want to delete this item?');
+
+      if (decide) {
+        axios.post('/api/roles/delete', {
+          'role_id': this.selected
+        }).then(function (res) {
+          _this4.selected.map(function (val) {
+            var index = _this4.roles.data.indexOf(val);
+
+            _this4.roles.data.splice(index, 1);
+
+            _this4.texts = "Role Deleted Successfully";
+            _this4.sweetalert = true;
+          });
+        })["catch"](function (err) {
+          _this4.texts = "Role can't be deleted";
+          _this4.sweetalert = true;
+        });
+      }
+    },
     editItem: function editItem(item) {
       this.editedIndex = this.roles.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
     deleteItem: function deleteItem(item) {
-      var _this4 = this;
+      var _this5 = this;
 
       var index = this.roles.data.indexOf(item);
       var decide = confirm('Are you sure you want to delete this item?');
 
       if (decide) {
         axios["delete"]('/api/roles/' + item.id).then(function (res) {
-          _this4.roles.data.splice(index, 1);
+          _this5.roles.data.splice(index, 1);
 
-          _this4.texts = "Role Deleted Successfully";
-          _this4.sweetalert = true;
+          _this5.texts = "Role Deleted Successfully";
+          _this5.sweetalert = true;
         })["catch"](function (err) {
           return console.log(err.response);
         });
       }
     },
     close: function close() {
-      var _this5 = this;
+      var _this6 = this;
 
       this.dialog = false;
       this.$nextTick(function () {
-        _this5.editedItem = Object.assign({}, _this5.defaultItem);
-        _this5.editedIndex = -1;
+        _this6.editedItem = Object.assign({}, _this6.defaultItem);
+        _this6.editedIndex = -1;
       });
     },
     save: function save() {
-      var _this6 = this;
+      var _this7 = this;
 
       if (this.editedIndex > -1) {
         //Object.assign(this.desserts[this.editedIndex], this.editedItem)
@@ -2547,9 +2590,9 @@ __webpack_require__.r(__webpack_exports__);
         axios.put('/api/roles/' + this.editedItem.id, {
           'name': this.editedItem.name
         }).then(function (res) {
-          Object.assign(_this6.roles.data[indexs], res.data.role);
-          _this6.texts = "Role Updated Successfully";
-          _this6.sweetalert = true;
+          Object.assign(_this7.roles.data[indexs], res.data.role);
+          _this7.texts = "Role Updated Successfully";
+          _this7.sweetalert = true;
         })["catch"](function (err) {
           return console.log(err.response);
         });
@@ -2558,10 +2601,10 @@ __webpack_require__.r(__webpack_exports__);
         axios.post('/api/roles', {
           'name': this.editedItem.name
         }).then(function (res) {
-          _this6.roles.data.push(res.data.role);
+          _this7.roles.data.push(res.data.role);
 
-          _this6.texts = "Role Created Successfully";
-          _this6.sweetalert = true;
+          _this7.texts = "Role Created Successfully";
+          _this7.sweetalert = true;
         })["catch"](function (err) {
           return console.dir(err.response);
         });
@@ -20704,12 +20747,13 @@ var render = function() {
             "show-current-page": true,
             "show-first-last-page": true
           },
+          "show-select": "",
           "server-items-length": _vm.roles.total,
           "item-key": "name",
           loading: _vm.loading,
           "loading-text": "Loading... Please wait"
         },
-        on: { pagination: _vm.paginate },
+        on: { input: _vm.selectData, pagination: _vm.paginate },
         scopedSlots: _vm._u([
           {
             key: "top",
@@ -20739,6 +20783,21 @@ var render = function() {
                               var on = ref.on
                               var attrs = ref.attrs
                               return [
+                                _c(
+                                  "v-btn",
+                                  _vm._b(
+                                    {
+                                      staticClass: "mb-2",
+                                      attrs: { color: "error", dark: "" },
+                                      on: { click: _vm.deleteMultiple }
+                                    },
+                                    "v-btn",
+                                    attrs,
+                                    false
+                                  ),
+                                  [_vm._v("Delete Selected")]
+                                ),
+                                _vm._v(" "),
                                 _c(
                                   "v-btn",
                                   _vm._g(
