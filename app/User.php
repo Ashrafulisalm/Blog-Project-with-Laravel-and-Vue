@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Role;
+use App\Profile;
 
 class User extends Authenticatable
 {
@@ -40,6 +41,10 @@ class User extends Authenticatable
 
     public function role(){
         return $this->belongsTo(Role::class);
+    }
+
+    public function profile(){
+        return $this->hasOne(Profile::class)->withDefault('image/nouser.png');
     }
 
     public function hasAccess(){

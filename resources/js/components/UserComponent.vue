@@ -2,17 +2,18 @@
   <v-app id="inspire">
   	<v-data-table 
   	:headers="headers"
-      :items="roles.data"
-      :items-per-page="10"
+      :items="users"
+      :items-per-page="5"
       :footer-props="{
         itemsPerPageOptions:[5,10,15],
-        itemsPerPageText:'Roles per Page',
+        itemsPerPageText:'users per Page',
         'show-current-page':true,
         'show-first-last-page':true
-      }"      
+      }"
+      
       show-select
       @input="selectData"
-      :server-items-length="roles.total"
+      :server-items-length="users.total"
       @pagination="paginate"
       item-key="name" 
       class="elevation-1" 
@@ -22,7 +23,7 @@
 
   		<template v-slot:top>
   		  <v-toolbar flat color="green">
-  		    <v-toolbar-title>Roles Detail</v-toolbar-title>
+  		    <v-toolbar-title>users Detail</v-toolbar-title>
   		    <v-divider
   		      class="mx-4"
   		      inset
@@ -44,41 +45,53 @@
   		          class="mb-2"
   		          v-bind="attrs"
   		          v-on="on"
-  		        >Add Role</v-btn>
+  		        >Add User</v-btn>
   		      </template>
   		      <v-card>
   		        <v-card-title>
   		          <span class="headline">{{ formTitle }}</span>
   		        </v-card-title>
+    		        <v-card-text>
+    		          <v-container>
+    		            <v-row>
+    		              <v-col cols="12">
+    		                <v-text-field v-model="editedItem.name" label="User Name" :rules="[rules.required,rules.min]"></v-text-field>
+    		              </v-col>
+                      <v-col cols="12">
+                        <v-select :items="roles" label="User Role" :rules="[rules.required]" ></v-select>
+                      </v-col>
+                      <v-col cols="12">
+                        <v-text-field v-model="editedItem.email" label="User Email" :rules="[rules.required, rules.validEmail]"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <v-text-field append-icon="mdi-eye" v-model="editedItem.password" type="password" label="User Password" :rules="[rules.required]"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" md="6">
+                        <v-text-field  append-icon="mdi-eye" v-model="rpassword" type="password" label="Confirm Password" :rules="[rules.required, passwordMatch]"></v-text-field>
+                      </v-col>
+    		              
+    		            </v-row>
+    		          </v-container>
+    		        </v-card-text>
 
-  		        <v-card-text>
-  		          <v-container>
-  		            <v-row>
-  		              <v-col cols="12" sm="6" md="4">
-  		                <v-text-field v-model="editedItem.name" label="Role Name"></v-text-field>
-  		              </v-col>
-  		              
-  		            </v-row>
-  		          </v-container>
-  		        </v-card-text>
-
-  		        <v-card-actions>
-  		          <v-spacer></v-spacer>
-  		          <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-  		          <v-btn color="blue darken-1" text @click="save">Save</v-btn>
-  		        </v-card-actions>
+    		        <v-card-actions>
+    		          <v-spacer></v-spacer>
+    		          <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
+    		          <v-btn color="blue darken-1" text @click.prevent="save">Save</v-btn>
+    		        </v-card-actions>
   		      </v-card>
   		    </v-dialog>
   		  </v-toolbar>
         <v-text-field
-        
           append-icon="mdi-magnify"
           label="Search"
           @input="searchIt"
           class="mx-12"                
         ></v-text-field>
   		</template>
-  		  
+  		<template v-slot:item.image="{item}">
+        <v-img :src="item.image" aspect-ratio="1.7"></v-img>
+      </template>  
   		<template v-slot:item.actions="{ item }">
   		  <v-icon
   		    small
@@ -99,7 +112,7 @@
   		</template>
   	</v-data-table>
     <v-snackbar
-                  v-model="sweetalert"
+                  v-model="snackbar"
                 >
                   {{ texts }}
 
@@ -122,9 +135,10 @@
     data: () => ({
       dialog: false,
       loading : false,
-      sweetalert: false,
+      snackbar: false,
       texts:'',
       selected:[],
+      rpassword:'',
       headers: [
         {
           text: 'Id',
@@ -133,23 +147,39 @@
           value: 'id',
         },
         { text: 'Name', value: 'name' },
+        { text: 'Email', value: 'email' },
+        { text: 'Role', value: 'role' },
+        { text: 'Image', value: 'image' },
         { text: 'Created At', value: 'created_at' },
         { text: 'Updated At', value: 'updated_at' },
         
         { text: 'Actions', value: 'actions', sortable: false },
       ],
-      roles: [],
+      users: [],
+      roles:[],
+      rules:{
+        required: v => !!v || 'This field is required',
+        min: v => v.length>=3 || 'Name at least 3 Character',
+        validEmail: v => /.+@.+\..+/.test(v) || 'Must enter a valid Email'
+      },
       editedIndex: -1,
       editedItem: {
         id:'',
         name: '',
+        email:'',
+        role:'',
+        image:'',
+        password:'',
         created_at:'',
         updated_at:'',
-        
-      },
+       }, 
       defaultItem: {
         id:'',
         name: '',
+        email:'',
+        role:'',
+        image:'',
+        password:'',
         created_at:'',
         updated_at:'',
         
@@ -158,8 +188,11 @@
 
     computed: {
       formTitle () {
-        return this.editedIndex === -1 ? 'New Role' : 'Edit Role'
+        return this.editedIndex === -1 ? 'New User' : 'Edit User'
       },
+      passwordMatch(){
+        return this.editedItem.password != this.rpassword?'Password Does not Match':''
+      }
     },
 
     watch: {
@@ -197,8 +230,11 @@
       },
 
       paginate(event){
-        axios.get('/api/roles?page='+(event.page), {params:{'per_page':event.itemsPerPage}})
-            .then(res => this.roles=res.data.roles)
+        axios.get('/api/users?page='+(event.page), {params:{'per_page':event.itemsPerPage}})
+            .then(res => {
+              this.users=res.data.users
+              this.roles=res.data.roles
+              })
             .catch(err => {
               if(err.response.status==401){
                 localStorage.removeItem('token');
@@ -209,13 +245,13 @@
 
       searchIt(e){
         if(e.length>3){
-          axios.get(`/api/roles/${e}`)
-            .then(res=> this.roles.data = res.data.role)
+          axios.get(`/api/users/${e}`)
+            .then(res=> this.users.data = res.data.user)
             .catch(err=>console.dir(err.response))
         } 
         if(e.length<=0){
-          axios.get('/api/roles')
-            .then(res=>this.roles.data=res.data.role)
+          axios.get('/api/users')
+            .then(res=>this.users.data=res.data.user)
             .catch(err=>console.dir(err.response))
 
         }
@@ -231,37 +267,37 @@
       deleteMultiple(){
           let decide=confirm('Are you sure you want to delete this item?');
           if(decide){ 
-            axios.post('/api/roles/delete',{'role_id':this.selected})
+            axios.post('/api/users/delete',{'user_id':this.selected})
             .then(res=> {              
               this.selected.map(val=>{
-              const index = this.roles.data.indexOf(val)
-              this.roles.data.splice(index, 1)
-              this.texts="Role Deleted Successfully"
-              this.sweetalert=true
+              const index = this.users.data.indexOf(val)
+              this.users.data.splice(index, 1)
+              this.texts="User Deleted Successfully"
+              this.snackbar=true
               })
           }).catch(err=>{
-            this.texts="Role can't be deleted"
-              this.sweetalert=true
+            this.texts="User can't be deleted"
+              this.snackbar=true
           }
           )
         }
       },
 
       editItem (item) {
-        this.editedIndex = this.roles.data.indexOf(item)
+        this.editedIndex = this.users.indexOf(item)
         this.editedItem = Object.assign({}, item)
         this.dialog = true
       },
 
       deleteItem (item) {
-        const index = this.roles.data.indexOf(item)
+        const index = this.users.indexOf(item)
         let decide=confirm('Are you sure you want to delete this item?');
         if(decide){ 
-          axios.delete('/api/roles/'+item.id)
+          axios.delete('/api/users/'+item.id)
           .then(res=> {
-            this.roles.data.splice(index, 1)
-            this.texts="Role Deleted Successfully"
-            this.sweetalert=true
+            this.users.splice(index, 1)
+            this.texts="User Deleted Successfully"
+            this.snackbar=true
           }).catch(err=>console.log(err.response))
         }
       },
@@ -279,20 +315,25 @@
           //Object.assign(this.desserts[this.editedIndex], this.editedItem)
 
           const indexs=this.editedIndex;
-          axios.put('/api/roles/'+ this.editedItem.id , {'name':this.editedItem.name})
+          axios.put('/api/users/'+ this.editedItem.id , {'name':this.editedItem.name})
           .then(res => {
-            Object.assign(this.roles.data[indexs], res.data.role)
-            this.texts="Role Updated Successfully"
-            this.sweetalert=true})
+            Object.assign(this.users.data[indexs], res.data.user)
+            this.texts="User Updated Successfully"
+            this.snackbar=true})
           .catch(err=> console.log(err.response))
           console.log(this.editedItem);
           
         } else {
-          axios.post('/api/roles',{'name':this.editedItem.name})
+          axios.post('/api/users',{
+            'name':this.editedItem.name,
+            'email':this.editedItem.email,
+            'role':this.editedItem.role,
+            'password':this.editedItem.password
+            })
           .then(res=> {
-            this.roles.data.push(res.data.role)
-            this.texts="Role Created Successfully"
-            this.sweetalert=true
+            this.users.data.push(res.data.user)
+            this.texts="User Created Successfully"
+            this.snackbar=true
           })
           .catch(err=>console.dir(err.response))
 
@@ -303,4 +344,4 @@
   }
 </script>
 
-<style scoped></style>
+<style scoped></stUser

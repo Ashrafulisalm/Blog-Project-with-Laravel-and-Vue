@@ -3,6 +3,7 @@ import VueRouter from 'vue-router';
 import LoginComponent from './components/LoginComponent';
 import AdminComponent from './components/AdminComponent';
 import RoleComponent from './components/RoleComponent';
+import UserComponent from './components/UserComponent';
 
 Vue.use(VueRouter)
 
@@ -26,6 +27,11 @@ const routes=[
 			path:'roles',
 			component:RoleComponent,
 			name:'Role'
+		},
+		{
+			path:'users',
+			component:UserComponent,
+			name:'User'
 		}
 	],
 	beforeEnter : (to,from,next)=>{

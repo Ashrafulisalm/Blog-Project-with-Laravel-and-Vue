@@ -20,8 +20,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware'=>['auth:api'], 'namespace'=>'Api'], function(){
 	Route::resource('roles','RoleController');
+	Route::resource('users','UserController');
 	Route::get('/varify','UserController@varify');
 	Route::post('roles/delete','RoleController@deleteMultiple');
+	Route::post('users/delete','UserController@deleteMultiple');
 });
 
 Route::post('login','Api\UserController@login')->name('login');

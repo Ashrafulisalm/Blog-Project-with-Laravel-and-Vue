@@ -136,7 +136,7 @@
         theme: false,
         text:'',
 	      items: [
-	        { icon: 'mdi-account-circle', text: 'User' , action: "/admin" },
+	        { icon: 'mdi-account-circle', text: 'User' , action: "/admin/users" },
 	        { icon: 'mdi-post-outline', text: 'Post', action: "posts" },
 	        { icon: 'mdi-circle-edit-outline', text: 'Pages', action: "pages" },
 	        { icon: 'mdi-briefcase-edit-outline', text: 'catagories', action: "catagories" },
