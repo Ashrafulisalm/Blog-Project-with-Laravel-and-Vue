@@ -2943,19 +2943,19 @@ __webpack_require__.r(__webpack_exports__);
       }
     },
     editItem: function editItem(item) {
-      this.editedIndex = this.users.indexOf(item);
+      this.editedIndex = this.users.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
     },
     deleteItem: function deleteItem(item) {
       var _this5 = this;
 
-      var index = this.users.indexOf(item);
+      var index = this.users.data.indexOf(item);
       var decide = confirm('Are you sure you want to delete this item?');
 
       if (decide) {
         axios["delete"]('/api/users/' + item.id).then(function (res) {
-          _this5.users.splice(index, 1);
+          _this5.users.data.splice(index, 1);
 
           _this5.texts = "User Deleted Successfully";
           _this5.snackbar = true;
@@ -2990,12 +2990,7 @@ __webpack_require__.r(__webpack_exports__);
         });
         console.log(this.editedItem);
       } else {
-        axios.post('/api/users', {
-          'name': this.editedItem.name,
-          'email': this.editedItem.email,
-          'role': this.editedItem.role,
-          'password': this.editedItem.password
-        }).then(function (res) {
+        axios.post('/api/users', this.editedItem).then(function (res) {
           _this7.users.data.push(res.data.user);
 
           _this7.texts = "User Created Successfully";
@@ -21453,7 +21448,7 @@ var render = function() {
         staticClass: "elevation-1",
         attrs: {
           headers: _vm.headers,
-          items: _vm.users,
+          items: _vm.users.data,
           "items-per-page": 5,
           "footer-props": {
             itemsPerPageOptions: [5, 10, 15],
@@ -21597,6 +21592,17 @@ var render = function() {
                                                 items: _vm.roles,
                                                 label: "User Role",
                                                 rules: [_vm.rules.required]
+                                              },
+                                              model: {
+                                                value: _vm.editedItem.role,
+                                                callback: function($$v) {
+                                                  _vm.$set(
+                                                    _vm.editedItem,
+                                                    "role",
+                                                    $$v
+                                                  )
+                                                },
+                                                expression: "editedItem.role"
                                               }
                                             })
                                           ],

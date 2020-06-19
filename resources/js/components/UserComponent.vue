@@ -2,7 +2,7 @@
   <v-app id="inspire">
   	<v-data-table 
   	:headers="headers"
-      :items="users"
+      :items="users.data"
       :items-per-page="5"
       :footer-props="{
         itemsPerPageOptions:[5,10,15],
@@ -58,7 +58,7 @@
     		                <v-text-field v-model="editedItem.name" label="User Name" :rules="[rules.required,rules.min]"></v-text-field>
     		              </v-col>
                       <v-col cols="12">
-                        <v-select :items="roles" label="User Role" :rules="[rules.required]" ></v-select>
+                        <v-select :items="roles" v-model="editedItem.role" label="User Role" :rules="[rules.required]" ></v-select>
                       </v-col>
                       <v-col cols="12">
                         <v-text-field v-model="editedItem.email" label="User Email" :rules="[rules.required, rules.validEmail]"></v-text-field>
@@ -284,18 +284,18 @@
       },
 
       editItem (item) {
-        this.editedIndex = this.users.indexOf(item)
+        this.editedIndex = this.users.data.indexOf(item)
         this.editedItem = Object.assign({}, item)
         this.dialog = true
       },
 
       deleteItem (item) {
-        const index = this.users.indexOf(item)
+        const index = this.users.data.indexOf(item)
         let decide=confirm('Are you sure you want to delete this item?');
         if(decide){ 
           axios.delete('/api/users/'+item.id)
           .then(res=> {
-            this.users.splice(index, 1)
+            this.users.data.splice(index, 1)
             this.texts="User Deleted Successfully"
             this.snackbar=true
           }).catch(err=>console.log(err.response))
@@ -324,12 +324,7 @@
           console.log(this.editedItem);
           
         } else {
-          axios.post('/api/users',{
-            'name':this.editedItem.name,
-            'email':this.editedItem.email,
-            'role':this.editedItem.role,
-            'password':this.editedItem.password
-            })
+          axios.post('/api/users',this.editedItem)
           .then(res=> {
             this.users.data.push(res.data.user)
             this.texts="User Created Successfully"

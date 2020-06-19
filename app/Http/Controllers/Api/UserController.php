@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\User;
 use App\Role;
+use App\Profile;
 use Auth;
 use Illuminate\Support\Str;
 use App\Http\Resources\User as UserResource;
+use App\Http\Resources\UserCollection;
 
 class UserController extends Controller
 {
@@ -21,7 +23,7 @@ class UserController extends Controller
     public function index(Request $request)
     {   
         $per_page=$request->per_page;
-        return response()->json(['users'=> UserResource::collection(User::with('profile')->paginate($per_page)),'roles'=>Role::pluck('name')->all()], 200);
+        return response()->json(['users'=> new UserCollection(User::paginate($per_page)),'roles'=>Role::pluck('name')->all()], 200);
     }
 
     /**
@@ -42,14 +44,17 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {   
-        $password=Hash::make($request->password);
-        $user=User::create([
+        $role=Role::where('name',$request->role)->first();
+        $user=new User([
             'name'=>$request->name,
             'email'=>$request->email,
-            'password'=>$password,
+            'password'=>Hash::make($request->password),
             
         ]);
-        return response()->json(['user' =>$user],200);
+        $user->role()->associate($role);
+        $user->save();
+        $user->profile()->save(new Profile());
+        return response()->json(['user' =>new UserResource($user)],200);
     }
 
     /**
