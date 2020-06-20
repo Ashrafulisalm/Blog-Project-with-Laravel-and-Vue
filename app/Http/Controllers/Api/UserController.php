@@ -89,10 +89,14 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $new_role=Role::where('name',$request->role)->first();
         $user=User::find($id);
         $user->name=$request->name;
+        $user->role()->dissociate($user->role);
+        $user->role()->associate($new_role);
         $user->save();
-        return response()->json(['user' =>$user],200);
+
+        return response()->json(['user' => new UserResource($user)],200);
     }
 
     /**
@@ -104,6 +108,7 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user=User::find($id)->delete();
+        Profile::where('user_id',$id)->delete();
         return response()->json(['user' =>$user],200);
     }
 

@@ -53,23 +53,24 @@
   		        </v-card-title>
     		        <v-card-text>
     		          <v-container>
-    		            <v-row>
+    		            <v-row><v-row>
     		              <v-col cols="12">
     		                <v-text-field v-model="editedItem.name" label="User Name" :rules="[rules.required,rules.min]"></v-text-field>
     		              </v-col>
                       <v-col cols="12">
                         <v-select :items="roles" v-model="editedItem.role" label="User Role" :rules="[rules.required]" ></v-select>
-                      </v-col>
-                      <v-col cols="12">
-                        <v-text-field v-model="editedItem.email" label="User Email" :rules="[rules.required, rules.validEmail]"></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field append-icon="mdi-eye" v-model="editedItem.password" type="password" label="User Password" :rules="[rules.required]"></v-text-field>
-                      </v-col>
-                      <v-col cols="12" md="6">
-                        <v-text-field  append-icon="mdi-eye" v-model="rpassword" type="password" label="Confirm Password" :rules="[rules.required, passwordMatch]"></v-text-field>
-                      </v-col>
-    		              
+                      </v-col></v-row>
+                      <v-row v-if="formControl">
+                        <v-col cols="12">
+                          <v-text-field v-model="editedItem.email" label="User Email" :rules="[rules.required, rules.validEmail]"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field append-icon="mdi-eye" v-model="editedItem.password" type="password" label="User Password" :rules="[rules.required]"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" md="6">
+                          <v-text-field  append-icon="mdi-eye" v-model="rpassword" type="password" label="Confirm Password" :rules="[rules.required, passwordMatch]"></v-text-field>
+                        </v-col>
+    		              </v-row>
     		            </v-row>
     		          </v-container>
     		        </v-card-text>
@@ -192,7 +193,11 @@
       },
       passwordMatch(){
         return this.editedItem.password != this.rpassword?'Password Does not Match':''
+      },
+      formControl(){
+      return this.editedIndex === -1 ? true : false 
       }
+
     },
 
     watch: {
@@ -315,7 +320,7 @@
           //Object.assign(this.desserts[this.editedIndex], this.editedItem)
 
           const indexs=this.editedIndex;
-          axios.put('/api/users/'+ this.editedItem.id , {'name':this.editedItem.name})
+          axios.put('/api/users/'+ this.editedItem.id ,this.editedItem)
           .then(res => {
             Object.assign(this.users.data[indexs], res.data.user)
             this.texts="User Updated Successfully"
